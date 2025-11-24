@@ -1,17 +1,7 @@
-# macOS
 .DS_Store
-
-# IDE
+*.swp
+*.swo
+*~
 .vscode/
 .idea/
 
-# Temporary files
-*.tmp
-*.bak
-*~
-
-# Secrets (never commit!)
-kubeconfig
-*.key
-*.pem
-secrets/
