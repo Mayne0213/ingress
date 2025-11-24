@@ -19,3 +19,14 @@ metadata:
 stringData:
   type: git
   url: https://github.com/Mayne0213/portfolio.git
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-todo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: https://github.com/Mayne0213/todo.git
