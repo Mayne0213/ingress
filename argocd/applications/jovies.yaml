@@ -3,10 +3,6 @@ kind: Application
 metadata:
   name: jovies
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: jovies=ghcr.io/mayne0213/jovies
-    argocd-image-updater.argoproj.io/jovies.update-strategy: latest
-    argocd-image-updater.argoproj.io/write-back-method: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
