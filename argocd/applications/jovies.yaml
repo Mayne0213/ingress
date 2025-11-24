@@ -12,6 +12,7 @@ spec:
     repoURL: https://github.com/Mayne0213/jovies.git
     targetRevision: main
     path: deploy/k8s/overlays/prod
+    kustomize: {}
 
   destination:
     server: https://kubernetes.default.svc
