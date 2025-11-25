@@ -76,18 +76,6 @@ spec:
           mountPath: /var/lib/grafana
         - name: datasources
           mountPath: /etc/grafana/provisioning/datasources
-        - name: dashboards-config
-          mountPath: /etc/grafana/provisioning/dashboards
-        - name: dashboards
-          mountPath: /var/lib/grafana/dashboards
-        - name: dashboard-node
-          mountPath: /var/lib/grafana/dashboards/node
-        - name: dashboard-ingress
-          mountPath: /var/lib/grafana/dashboards/ingress
-        - name: dashboard-argocd
-          mountPath: /var/lib/grafana/dashboards/argocd
-        - name: dashboard-pods
-          mountPath: /var/lib/grafana/dashboards/pods
         livenessProbe:
           httpGet:
             path: /api/health
@@ -107,24 +95,6 @@ spec:
       - name: datasources
         configMap:
           name: grafana-datasources
-      - name: dashboards-config
-        configMap:
-          name: grafana-dashboards-config
-      - name: dashboards
-        configMap:
-          name: grafana-dashboard-k8s
-      - name: dashboard-node
-        configMap:
-          name: grafana-dashboard-node
-      - name: dashboard-ingress
-        configMap:
-          name: grafana-dashboard-ingress
-      - name: dashboard-argocd
-        configMap:
-          name: grafana-dashboard-argocd
-      - name: dashboard-pods
-        configMap:
-          name: grafana-dashboard-pods
 ---
 apiVersion: v1
 kind: Service

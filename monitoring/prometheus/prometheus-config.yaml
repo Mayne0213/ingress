@@ -85,6 +85,11 @@ data:
             action: keep
             regex: node-exporter
 
+      # Kube State Metrics
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
+
       # ArgoCD Metrics
       - job_name: 'argocd-metrics'
         static_configs:
