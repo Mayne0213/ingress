@@ -1,0 +1,192 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: monitoring
+data:
+  alerts.yml: |
+    groups:
+    - name: node_alerts
+      interval: 30s
+      rules:
+      # 노드 메모리 사용률 경고 (70% 이상)
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 70
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 70% (current: {{ $value }}%)"
+
+      # 노드 메모리 사용률 심각 (85% 이상)
+      - alert: CriticalMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% (current: {{ $value }}%)"
+
+      # 노드 CPU 사용률 경고 (80% 이상)
+      - alert: HighCpuUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% (current: {{ $value }}%)"
+
+      # 디스크 사용률 경고 (80% 이상)
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs",fstype!="overlay"} / node_filesystem_size_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage on {{ $labels.instance }}"
+          description: "Disk usage on {{ $labels.mountpoint }} is above 80% (current: {{ $value }}%)"
+
+      # 노드 다운
+      - alert: NodeDown
+        expr: up{job="node-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+          description: "Node exporter on {{ $labels.instance }} is not responding"
+
+    - name: kubernetes_alerts
+      interval: 30s
+      rules:
+      # Pod가 반복적으로 재시작
+      - alert: PodRestartingFrequently
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is restarting frequently"
+          description: "Pod has restarted {{ $value }} times in the last 15 minutes"
+
+      # Pod가 Pending 상태
+      - alert: PodPending
+        expr: kube_pod_status_phase{phase="Pending"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is pending"
+          description: "Pod has been in pending state for more than 10 minutes"
+
+      # Pod가 Failed 상태
+      - alert: PodFailed
+        expr: kube_pod_status_phase{phase="Failed"} == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has failed"
+          description: "Pod is in failed state"
+
+      # 컨테이너 메모리 사용률 경고
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} high memory usage"
+          description: "Container memory usage is above 90% (current: {{ $value }}%)"
+
+      # 컨테이너 CPU 사용률 경고
+      - alert: ContainerHighCPU
+        expr: (rate(container_cpu_usage_seconds_total[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} high CPU usage"
+          description: "Container is using more than 1 CPU core"
+
+    - name: argocd_alerts
+      interval: 30s
+      rules:
+      # ArgoCD 애플리케이션 Sync 실패
+      - alert: ArgoCDAppSyncFailed
+        expr: argocd_app_info{sync_status!="Synced"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "ArgoCD application {{ $labels.name }} sync failed"
+          description: "Application is not in synced state: {{ $labels.sync_status }}"
+
+      # ArgoCD 애플리케이션 Health 문제
+      - alert: ArgoCDAppUnhealthy
+        expr: argocd_app_info{health_status!="Healthy"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "ArgoCD application {{ $labels.name }} is unhealthy"
+          description: "Application health status: {{ $labels.health_status }}"
+
+    - name: ingress_alerts
+      interval: 30s
+      rules:
+      # Ingress HTTP 5xx 에러율 높음
+      - alert: HighHttp5xxErrorRate
+        expr: sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) / sum(rate(nginx_ingress_controller_requests[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate on ingress controller"
+          description: "5xx error rate is above 5% (current: {{ $value | humanizePercentage }})"
+
+      # Ingress HTTP 4xx 에러율 높음
+      - alert: HighHttp4xxErrorRate
+        expr: sum(rate(nginx_ingress_controller_requests{status=~"4.."}[5m])) / sum(rate(nginx_ingress_controller_requests[5m])) > 0.20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 4xx error rate on ingress controller"
+          description: "4xx error rate is above 20% (current: {{ $value | humanizePercentage }})"
+
+      # Ingress 높은 레이턴시
+      - alert: HighIngressLatency
+        expr: histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket[5m])) by (le, host)) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request latency on {{ $labels.host }}"
+          description: "95th percentile latency is above 5 seconds (current: {{ $value }}s)"
+
+    - name: prometheus_alerts
+      interval: 30s
+      rules:
+      # Prometheus 타겟 다운
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus target {{ $labels.job }}/{{ $labels.instance }} is down"
+          description: "Target has been down for more than 5 minutes"
+
+      # Prometheus 스토리지 공간 부족
+      - alert: PrometheusStorageAlmostFull
+        expr: prometheus_tsdb_storage_blocks_bytes / prometheus_tsdb_retention_limit_bytes > 0.85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus storage is almost full"
+          description: "Storage usage is above 85% (current: {{ $value | humanizePercentage }})"
