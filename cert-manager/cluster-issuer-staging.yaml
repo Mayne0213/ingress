@@ -1,0 +1,22 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Let's Encrypt Staging 서버 (테스트용)
+    # Rate limit이 없어서 테스트할 때 사용
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+    # 인증서 만료 알림을 받을 이메일 주소
+    email: bluemayne0213@icloud.com
+
+    # ACME 계정의 private key를 저장할 Secret 이름
+    privateKeySecretRef:
+      name: letsencrypt-staging
+
+    # HTTP-01 challenge를 사용하여 도메인 소유권 검증
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

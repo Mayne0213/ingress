@@ -1,0 +1,24 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # Let's Encrypt Production 서버
+    # 실제 운영 환경에서 사용
+    # Rate limit: 50 certificates per registered domain per week
+    server: https://acme-v02.api.letsencrypt.org/directory
+
+    # 인증서 만료 알림을 받을 이메일 주소
+    email: bluemayne0213@icloud.com
+
+    # ACME 계정의 private key를 저장할 Secret 이름
+    privateKeySecretRef:
+      name: letsencrypt-prod
+
+    # HTTP-01 challenge를 사용하여 도메인 소유권 검증
+    # Nginx Ingress를 통해 /.well-known/acme-challenge/ 경로로 검증
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

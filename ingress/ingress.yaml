@@ -7,9 +7,19 @@ metadata:
   namespace: jovies
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager가 인증서를 자동으로 발급하도록 설정
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # TLS 설정
+  tls:
+  - hosts:
+    - jovies.kro.kr
+    - www.jovies.kro.kr
+    # cert-manager가 이 이름으로 Secret을 자동 생성
+    secretName: jovies-tls
   rules:
     - host: jovies.kro.kr
       http:
@@ -40,9 +50,17 @@ metadata:
   name: portfolio-ingress
   namespace: portfolio
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager가 인증서를 자동으로 발급하도록 설정
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # TLS 설정
+  tls:
+  - hosts:
+    - mayne.kro.kr
+    secretName: portfolio-tls
   rules:
     - host: mayne.kro.kr
       http:
@@ -64,9 +82,17 @@ metadata:
   namespace: todo
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager가 인증서를 자동으로 발급하도록 설정
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # TLS 설정
+  tls:
+  - hosts:
+    - todo0213.kro.kr
+    secretName: todo-tls
   rules:
     - host: todo0213.kro.kr
       http:
@@ -88,9 +114,17 @@ metadata:
   namespace: monitoring
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager가 인증서를 자동으로 발급하도록 설정
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # TLS 설정
+  tls:
+  - hosts:
+    - grafana0213.kro.kr
+    secretName: grafana-tls
   rules:
     - host: grafana0213.kro.kr
       http:

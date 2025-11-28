@@ -99,7 +99,7 @@ fi
 ###############################################################################
 # 4. Ingress Nginx Controller 설치
 ###############################################################################
-log_info "4/7 Ingress Nginx Controller 설치 중..."
+log_info "4/8 Ingress Nginx Controller 설치 중..."
 if kubectl get namespace ingress-nginx &> /dev/null; then
     log_warn "Ingress Nginx가 이미 설치되어 있습니다. 건너뜁니다."
 else
@@ -120,7 +120,7 @@ log_info "HTTP NodePort: $HTTP_NODEPORT"
 ###############################################################################
 # 5. Nginx 설치 및 설정
 ###############################################################################
-log_info "5/7 Nginx 설치 중..."
+log_info "5/8 Nginx 설치 중..."
 if command -v nginx &> /dev/null; then
     log_warn "Nginx가 이미 설치되어 있습니다."
 else
@@ -177,9 +177,27 @@ systemctl enable nginx
 log_info "Nginx 설치 및 설정 완료!"
 
 ###############################################################################
-# 6. Infrastructure App of Apps 배포
+# 6. cert-manager 설치 (TLS/HTTPS 자동화)
 ###############################################################################
-log_info "6/7 Infrastructure App of Apps 배포 중..."
+log_info "6/8 cert-manager 설치 중..."
+if kubectl get namespace cert-manager &> /dev/null; then
+    log_warn "cert-manager 네임스페이스가 이미 존재합니다. 건너뜁니다."
+else
+    log_info "cert-manager v1.14.0 설치 중..."
+    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.0/cert-manager.yaml
+
+    log_info "cert-manager 파드 시작 대기 중... (1-2분 소요)"
+    sleep 15
+    kubectl wait --for=condition=Ready pods --all -n cert-manager --timeout=300s || log_warn "일부 파드가 준비되지 않았습니다. 계속 진행합니다."
+
+    log_info "cert-manager 설치 완료!"
+    log_info "Let's Encrypt를 통해 무료 SSL 인증서가 자동으로 발급됩니다."
+fi
+
+###############################################################################
+# 7. Infrastructure App of Apps 배포
+###############################################################################
+log_info "7/8 Infrastructure App of Apps 배포 중..."
 
 # application.yaml 다운로드 및 적용
 log_info "infrastructure repository에서 application.yaml 다운로드 중..."
@@ -195,9 +213,9 @@ else
 fi
 
 ###############################################################################
-# 7. 상태 확인
+# 8. 상태 확인
 ###############################################################################
-log_info "7/7 최종 상태 확인 중..."
+log_info "8/8 최종 상태 확인 중..."
 
 echo ""
 echo "========================================"
@@ -224,6 +242,7 @@ echo "  ✅ K3s (Kubernetes)"
 echo "  ✅ ArgoCD"
 echo "  ✅ Ingress Nginx Controller (NodePort: $HTTP_NODEPORT)"
 echo "  ✅ Nginx 리버스 프록시 (Port 80 → $HTTP_NODEPORT)"
+echo "  ✅ cert-manager (자동 TLS/HTTPS)"
 echo "  ✅ Infrastructure App of Apps"
 echo ""
 
