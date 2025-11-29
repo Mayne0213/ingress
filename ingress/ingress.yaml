@@ -7,8 +7,8 @@ metadata:
   namespace: jovies
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    # HTTP를 HTTPS로 자동 리다이렉트 (인증서 발급 완료 후 true로 변경)
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # cert-manager가 인증서를 자동으로 발급하도록 설정
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
@@ -50,8 +50,8 @@ metadata:
   name: portfolio-ingress
   namespace: portfolio
   annotations:
-    # HTTP를 HTTPS로 자동 리다이렉트 (인증서 발급 완료 후 true로 변경)
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # cert-manager가 인증서를 자동으로 발급하도록 설정
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
@@ -82,8 +82,8 @@ metadata:
   namespace: todo
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    # HTTP를 HTTPS로 자동 리다이렉트 (인증서 발급 완료 후 true로 변경)
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # cert-manager가 인증서를 자동으로 발급하도록 설정
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
@@ -114,8 +114,8 @@ metadata:
   namespace: monitoring
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    # HTTP를 HTTPS로 자동 리다이렉트 (인증서 발급 완료 후 true로 변경)
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # cert-manager가 인증서를 자동으로 발급하도록 설정
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
