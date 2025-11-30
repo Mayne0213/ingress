@@ -106,6 +106,38 @@ spec:
                   number: 80
 
 ---
+# Jaejadle 네임스페이스의 Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jaejadle-ingress
+  namespace: jaejadle
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # HTTP를 HTTPS로 자동 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager가 인증서를 자동으로 발급하도록 설정
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  # TLS 설정
+  tls:
+  - hosts:
+    - jaejadle.kro.kr
+    secretName: jaejadle-tls
+  rules:
+    - host: jaejadle.kro.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jaejadle-service
+                port:
+                  number: 80
+
+---
 # Grafana 네임스페이스의 Ingress
 apiVersion: networking.k8s.io/v1
 kind: Ingress
